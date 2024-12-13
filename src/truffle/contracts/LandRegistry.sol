@@ -28,7 +28,7 @@ contract LandRegistry {
         string memory street,
         uint256 squareMeters,
         uint256 price
-    ) private {
+    ) public {
         propertiesCount++;
         properties[propertiesCount] = Property(
             propertiesCount,
