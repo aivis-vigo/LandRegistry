@@ -157,7 +157,7 @@ function App() {
                         ))}
                     </select>
                 </div>
-                <p>Available Properties: {propertiesCount}</p>
+                <p>Registered Properties: {propertiesCount}</p>
                 <button onClick={togglePopup}>Add Property</button>
             </div>
 
@@ -224,7 +224,7 @@ function App() {
             {/* todo: should listing still be visible even if the listing is not active */}
             {propertyDetails && (
                 <div>
-                    <h3>Property Details:</h3>
+                    <h2>Property Details:</h2>
                     <p>City: {propertyDetails.city}</p>
                     <p>District: {propertyDetails.district}</p>
                     <p>Street: {propertyDetails.street}</p>
