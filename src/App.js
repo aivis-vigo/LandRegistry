@@ -9,6 +9,7 @@ const contractAddress = require('./truffle/build/contracts/LandRegistry.json').n
 function App() {
     const [web3, setWeb3] = useState(null);
     const [account, setAccount] = useState('');
+    const [accounts, setAccounts] = useState([]);
     const [contract, setContract] = useState(null);
     const [propertyDetails, setPropertyDetails] = useState(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -23,6 +24,11 @@ function App() {
 
     const togglePopup = () => setIsPopupOpen(!isPopupOpen);
 
+    const changeAccount = (e) => {
+        e.preventDefault();
+        setAccount(e.target.value);
+    };
+
     useEffect(() => {
         const initializeWeb3 = async () => {
             try {
@@ -30,6 +36,7 @@ function App() {
                 await window.ethereum.request({method: 'eth_requestAccounts'});
                 setWeb3(web3Instance);
                 const accounts = await web3Instance.eth.getAccounts();
+                setAccounts(accounts);
                 setAccount(accounts[0]);
 
                 const landRegistryContract = new web3Instance.eth.Contract(abi, contractAddress);
@@ -49,6 +56,7 @@ function App() {
         event.preventDefault()
         if (contract && web3) {
             try {
+                /* todo: this should be done on the contract */
                 const priceInWei = web3.utils.toWei(property.price, 'ether');
 
                 await contract.methods.addProperty(
@@ -86,16 +94,74 @@ function App() {
         }
     };
 
+    /* todo: how is the notary service going to be notified when transaction has taken place */
+    /* todo: ability to adjust price how much to send? */
+    const buyProperty = async (id) => {
+        if (contract && web3) {
+            try {
+                const property = await contract.methods.properties(id).call();
+
+                const propertyPriceInEther = web3.utils.fromWei(property.price, 'ether');
+                let totalPriceInEther = Number(propertyPriceInEther) + 0.02;
+                const priceInWei = web3.utils.toWei(totalPriceInEther.toString(), 'ether');
+
+                const gasEstimate = await contract.methods.buyProperty(id).estimateGas({
+                    from: account,
+                    value: priceInWei
+                });
+
+                await contract.methods.buyProperty(id).send({
+                    from: account,
+                    value: priceInWei,
+                    gas: gasEstimate,
+                });
+
+                await getProperty(id);
+            } catch (error) {
+                console.error('Error buying property:', error);
+            }
+        }
+    };
+
+    const toggleListingStatus = async (id) => {
+        if (contract && web3) {
+            try {
+                const gasEstimate = await contract.methods.toggleListing(id).estimateGas({
+                    from: account
+                });
+
+                await contract.methods.toggleListing(id).send({
+                    from: account,
+                    gas: gasEstimate
+                });
+
+                await getProperty(id);
+            } catch (error) {
+                console.error('Error toggling properties status:', error);
+            }
+        }
+    };
+
     return (
         <div className="custom-container">
             <h1>Land Registry</h1>
 
             <div className="tool-bar">
-                <p>Account: {account}</p>
+                <div className="flex flex-col">
+                    <p>Account:</p>
+                    <select value={account} onChange={(e) => changeAccount(e)}>
+                        {accounts.map((account, index) => (
+                            <option key={index} value={account}>
+                                {account}
+                            </option>
+                        ))}
+                    </select>
+                </div>
                 <p>Available Properties: {propertiesCount}</p>
                 <button onClick={togglePopup}>Add Property</button>
             </div>
 
+            {/* form for creating listings */}
             {isPopupOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
                     <div className="bg-white p-6 rounded shadow-md">
@@ -143,15 +209,19 @@ function App() {
                 </div>
             )}
 
+            {/* todo: should listing still be visible even if the listing is not active */}
+            {/* todo: show more useful info for this card */}
             {/* list of available properties */}
             <div className="property-grid">
                 {Array.from({length: Number(propertiesCount)}, (_, index) => (
-                    <button key={index + 1} onClick={() => getProperty(index + 1)}>
+                    <div key={index + 1} onClick={() => getProperty(index + 1)}
+                         className="text-center p-4 bg-orange-400 rounded-lg">
                         Get Property {index + 1}
-                    </button>
+                    </div>
                 ))}
             </div>
 
+            {/* todo: should listing still be visible even if the listing is not active */}
             {propertyDetails && (
                 <div>
                     <h3>Property Details:</h3>
@@ -162,6 +232,18 @@ function App() {
                     <p>Square Meters: {propertyDetails.squareMeters}</p>
                     <p>Current Owner: {propertyDetails.currentOwner}</p>
                     <p>Registered: {propertyDetails.isRegistered ? 'Yes' : 'No'}</p>
+                    {/* users who are not owners can only try to buy this property */}
+                    {propertyDetails.currentOwner !== account && (
+                        <button onClick={() => buyProperty(propertyDetails.id)} className="bg-green-400 p-2">
+                            Buy
+                        </button>
+                    )}
+                    {/* only owner can show/hide the listing  */}
+                    {propertyDetails.currentOwner === account && (
+                        <button onClick={() => toggleListingStatus(propertyDetails.id)} className="bg-orange-400 p-2">
+                            {propertyDetails.activeListing ? "Deactivate" : "Activate"}
+                        </button>
+                    )}
                 </div>
             )}
         </div>
