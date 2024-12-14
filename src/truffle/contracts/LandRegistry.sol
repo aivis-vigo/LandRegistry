@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 contract LandRegistry {
-    /* todo: maybe current owner should also add phone number for communication */
+
     struct Property {
         uint256 id;
         string city;
@@ -18,11 +18,12 @@ contract LandRegistry {
     mapping(uint256 => Property) public properties;
     uint256 public propertiesCount;
 
-    constructor() {
-        addProperty("Riga", "Centrs", "Dzirnavu iela", 290, 315000);
-        addProperty("Riga", "Teika", "Ausmas iela", 530, 735000);
-        addProperty("Riga", "Purvciems", "Dzelzavas iela", 750, 971500);
-    }
+    event OwnershipTransferred(
+        uint256 indexed propertyId,
+        address indexed previousOwner,
+        address indexed newOwner,
+        uint256 timestamp
+    );
 
     function addProperty(
         string memory city,
@@ -54,12 +55,20 @@ contract LandRegistry {
         require(properties[propertyId].isRegistered, "Property is not registered");
         require(properties[propertyId].currentOwner == currentOwner, "Only current owner can make the transfer");
         require(newOwner != address(0), "Invalid new owners address");
-        require(newOwner == msg.sender, "New owner can't be the current owner");
+        require(newOwner != currentOwner, "New owner can't be the current owner");
 
         properties[propertyId].currentOwner = newOwner;
+
+        emit OwnershipTransferred(
+            propertyId,
+            currentOwner,
+            newOwner,
+            block.timestamp
+        );
     }
 
-    /* todo: fees for notary */
+    /* todo: funds are released if the transaction fails for some reason */
+    /* todo: event to track when transaction took place */
     function buyProperty(
         uint256 propertyId
     ) public payable {
@@ -75,7 +84,8 @@ contract LandRegistry {
         transferOwnership(propertyId, property.currentOwner, msg.sender);
     }
 
-    function toggleListing(
+    /* todo: event with timestamp to track the time when changes took place */
+    function changeListingStatus(
         uint256 propertyId
     ) public {
         Property storage property = properties[propertyId];
@@ -85,4 +95,5 @@ contract LandRegistry {
 
         property.activeListing = !property.activeListing;
     }
+
 }

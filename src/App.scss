@@ -1,15 +1,15 @@
+* {
+  @apply font-julius-sans uppercase;
+}
+
 h1 {
-  @apply text-3xl text-center;
+  @apply text-3xl text-end;
 }
 
 .custom-container {
-  @apply container mx-auto min-h-screen space-y-8;
+  @apply container mx-auto min-h-screen space-y-8 my-10;
 }
 
 .property-grid {
   @apply grid grid-cols-3 gap-x-4 gap-y-6;
-}
-
-.tool-bar {
-  @apply grid grid-cols-3 justify-self-center text-center justify-between p-4 bg-orange-400 rounded-lg;
 }
