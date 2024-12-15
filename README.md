@@ -11,8 +11,17 @@ This project implements a simple Land Registry system using Solidity. The smart 
 - **Buy Property**: Allows users to purchase properties if the conditions are met (sufficient funds, active listing, and registration).
 - **Change Listing Status**: Allows the owner to toggle the listing status of a property between active and inactive.
 - **Events**: Emits events for ownership transfers, property purchases, and listing status changes to track actions on the blockchain.
+- **Geolocation with Google Maps**: The app uses Google Maps and Google Geocoding APIs to find coordinates for property addresses. These coordinates are used to display location pins on a map, showing available properties.
 
 ## Getting Started
+
+### Technologies Used
+
+ - **Solidity**: For writing Ethereum smart contracts.
+ - **React**: For building the frontend application.
+ - **Web3.js**: For interacting with Ethereum from the React app.
+ - **Google Maps API**: To display property locations on the map.
+ - **Google Geocoding API**: To convert property addresses into geolocation coordinates.
 
 ### Prerequisites
 
