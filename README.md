@@ -2,7 +2,7 @@
 
 This project implements a simple Land Registry system using Solidity. The smart contract allows users to register properties, transfer ownership, buy properties, and change listing statuses. The contract tracks properties by their unique IDs, and events are emitted to log significant actions such as ownership transfers, property purchases, and listing status changes.
 
-![Project Picture](downloads/React App.jpeg)  <!-- Replace this with your actual project image -->
+![Project Picture](public/project.jpeg)  <!-- Replace this with your actual project image -->
 
 ## Features
 
