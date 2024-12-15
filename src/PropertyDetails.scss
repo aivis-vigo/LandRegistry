@@ -1,0 +1,23 @@
+label {
+  @apply text-sm text-gray-600;
+}
+
+.popup-container {
+  @apply fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-10;
+}
+
+.details-container {
+  @apply bg-white p-6 rounded-lg shadow-md space-y-4;
+}
+
+.button-box {
+  @apply flex flex-row w-full justify-between;
+}
+
+.detail {
+  @apply flex flex-col space-y-2;
+}
+
+.button {
+  @apply p-2 rounded-lg w-full;
+}

@@ -16,12 +16,26 @@ contract LandRegistry {
     }
 
     mapping(uint256 => Property) public properties;
+    mapping(string => bool) public existingStreets;
     uint256 public propertiesCount;
 
     event OwnershipTransferred(
         uint256 indexed propertyId,
         address indexed previousOwner,
         address indexed newOwner,
+        uint256 timestamp
+    );
+
+    event PropertyPurchased(
+        uint256 indexed propertyId,
+        address indexed buyer,
+        uint256 price,
+        uint256 timestamp
+    );
+
+    event ListingStatusChanged(
+        uint256 indexed propertyId,
+        bool newStatus,
         uint256 timestamp
     );
 
@@ -32,7 +46,11 @@ contract LandRegistry {
         uint256 squareMeters,
         uint256 price
     ) public {
+        require(!existingStreets[street], "This property already exists");
+
         propertiesCount++;
+
+        existingStreets[street] = true;
 
         properties[propertiesCount] = Property(
             propertiesCount,
@@ -67,8 +85,6 @@ contract LandRegistry {
         );
     }
 
-    /* todo: funds are released if the transaction fails for some reason */
-    /* todo: event to track when transaction took place */
     function buyProperty(
         uint256 propertyId
     ) public payable {
@@ -82,9 +98,10 @@ contract LandRegistry {
         payable(property.currentOwner).transfer(msg.value);
 
         transferOwnership(propertyId, property.currentOwner, msg.sender);
+
+        emit PropertyPurchased(propertyId, msg.sender, msg.value, block.timestamp);
     }
 
-    /* todo: event with timestamp to track the time when changes took place */
     function changeListingStatus(
         uint256 propertyId
     ) public {
@@ -94,6 +111,8 @@ contract LandRegistry {
         require(msg.sender == property.currentOwner, "Listing doesn't belong to this account");
 
         property.activeListing = !property.activeListing;
+
+        emit ListingStatusChanged(propertyId, property.activeListing, block.timestamp);
     }
 
 }
