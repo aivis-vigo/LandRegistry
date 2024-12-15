@@ -51,7 +51,7 @@ To deploy and interact with this smart contract, you need the following:
 
 1. Add Property
     ```bash
-   const landRegistry = await LandRegistry.deployed();
+   const landRegistry = await LandRegistryTest.deployed();
     await landRegistry.addProperty("New York", "Manhattan", "5th Avenue", 200, 5);
 2. Buy Property
     ```bash
